@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MedTrace — Living Patient Record (demo)</title>
+<style>
+:root{--bg:#F6F8FB;--sf:#fff;--tx:#172B4D;--mu:#64748B;--bd:#E2E8F0;--nv:#10233F;--bl:#2563EB;--tl:#0F9D91;--am:#B45309;--amb:#FEF3C7;--gn:#047857;--gnb:#D1FAE5;--rd:#B4443C;--rdb:#FBE9E7;--gy:#EEF2F7;--mk:#FFF1B8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0C1626;--sf:#13233A;--tx:#E6EDF7;--mu:#9AABC2;--bd:#25384F;--nv:#0A1424;--bl:#6EA0FF;--tl:#3CC5B8;--am:#F5C16C;--amb:#3A2E10;--gn:#6EE0B2;--gnb:#0F3A2C;--rd:#F29A92;--rdb:#401F1D;--gy:#1A2D45;--mk:#5A4A10}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "Source Sans 3","Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;margin:0;color:var(--tx);font-weight:600}
+h1{font-size:24px}h2{font-size:18px}h3{font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}:focus-visible{outline:2px solid var(--bl);outline-offset:2px}
+.app{display:grid;grid-template-columns:224px 1fr;min-height:100vh}
+nav{background:var(--nv);color:#cfe0f5;padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+nav .brand{font:600 20px "Source Serif 4",Georgia,serif;color:#fff;padding:4px 10px 4px}
+nav .tag{font-size:12px;color:#8fa6c4;padding:0 10px 16px}
+nav a{color:#cfe0f5;text-decoration:none;padding:9px 10px;border-radius:6px;display:flex;gap:10px;align-items:center}
+nav a:hover{background:#ffffff14}nav a.on{background:#ffffff1f;color:#fff;box-shadow:inset 3px 0 0 var(--tl)}
+nav .sp{flex:1}nav label{font-size:12px;color:#8fa6c4;padding:0 10px}
+nav select{margin:2px 0 8px;background:#ffffff14;border:1px solid #ffffff30;border-radius:6px;padding:7px;color:#fff}
+nav select option{color:#172B4D}
+.rst{background:none;border:1px solid #ffffff40;color:#cfe0f5;border-radius:6px;padding:7px}
+main{padding:0 28px 40px;min-width:0}
+.ban{background:var(--amb);color:var(--am);font-size:13px;padding:6px 12px;margin:0 -28px 20px;display:flex;gap:10px;align-items:center}
+.ban b{background:var(--am);color:var(--amb);padding:1px 7px;border-radius:4px;font-size:12px}
+.sub{color:var(--mu);margin:2px 0 18px}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:16px;box-shadow:0 1px 2px #10233f0d}
+.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.met{font:600 30px "Source Serif 4",Georgia,serif}.met+div{color:var(--mu);font-size:13px}
+.bdg{display:inline-flex;gap:5px;align-items:center;border-radius:99px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap}
+.pending{background:var(--amb);color:var(--am)}.approved{background:var(--gnb);color:var(--gn)}.rejected{background:var(--rdb);color:var(--rd)}.superseded{background:var(--gy);color:var(--mu)}
+.btn{border:1px solid var(--bd);background:var(--sf);border-radius:6px;padding:7px 13px;font-weight:600}
+.btn.p{background:var(--bl);border-color:var(--bl);color:#fff}.btn.d{color:var(--rd)}.btn:disabled{opacity:.45;cursor:not-allowed}
+.tbl{width:100%;border-collapse:collapse}.tbl th{text-align:left;color:var(--mu);font-weight:600;font-size:13px;padding:8px;border-bottom:1px solid var(--bd)}
+.tbl td{padding:10px 8px;border-bottom:1px solid var(--bd);vertical-align:top}.tbl tr.cl{cursor:pointer}.tbl tr.cl:hover{background:var(--gy)}
+.sc{overflow-x:auto}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.mu{color:var(--mu);font-size:13px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--bd);margin:14px 0}.tabs a{padding:8px 14px;color:var(--mu);text-decoration:none;border-bottom:2px solid transparent}.tabs a.on{color:var(--tx);border-color:var(--tl);font-weight:600}
+input,select,textarea{border:1px solid var(--bd);background:var(--sf);border-radius:6px;padding:8px 10px}
+.src{white-space:pre-wrap;font:14px/1.7 ui-monospace,Consolas,monospace;background:var(--gy);padding:14px;border-radius:6px}
+mark{background:var(--mk);color:inherit;padding:1px 2px;border-radius:2px}
+.tl{border-left:2px solid var(--bd);margin-left:8px;padding-left:18px}.tl>.it{position:relative;margin-bottom:12px}
+.tl>.it:before{content:"";position:absolute;left:-25px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--sf);border:2px solid var(--tl)}
+.tl>.it.pending:before{border-color:var(--am)}.tl>.it.rejected:before{border-color:var(--rd)}.tl>.it.superseded:before{border-color:var(--mu)}
+.ev{display:block;width:100%;text-align:left;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px 14px}.ev:hover{border-color:var(--bl)}
+.pv{border-left:2px solid var(--tl);margin-left:10px;padding-left:16px}.pv .nd{display:block;text-align:left;width:100%;margin:0 0 10px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px 12px}
+.pv .nd.miss{border-style:dashed;color:var(--rd);background:var(--rdb)}.pv .nd:hover:not(.miss){border-color:var(--bl)}
+.vh{font-family:"Source Serif 4",Georgia,serif;margin:18px 0 8px;font-weight:600}
+.ov{position:fixed;inset:0;background:#0a142480;display:flex;justify-content:flex-end;z-index:20}.ov.c{justify-content:center;align-items:center}
+.dr{background:var(--sf);width:min(460px,100%);height:100%;overflow:auto;padding:20px;animation:sl .18s ease-out}
+.md{background:var(--sf);width:min(440px,92%);border-radius:10px;padding:20px}
+@keyframes sl{from{transform:translateX(24px);opacity:0}}
+.msg{padding:10px 14px;border-radius:8px;margin-bottom:10px;max-width:640px}.msg.u{background:var(--bl);color:#fff;margin-left:auto}.msg.a{background:var(--sf);border:1px solid var(--bd)}
+.chip{border:1px solid var(--bd);background:var(--sf);border-radius:99px;padding:5px 12px;font-size:13px}
+.cite{border:1px solid var(--tl);color:var(--tl);background:none;border-radius:4px;padding:1px 7px;font-size:12px;margin:2px 4px 0 0}
+#toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--nv);color:#fff;padding:10px 16px;border-radius:8px;z-index:30;display:none}
+.df del{background:var(--rdb);color:var(--rd)}.df ins{background:var(--gnb);color:var(--gn);text-decoration:none}
+@media(max-width:800px){.app{grid-template-columns:1fr}nav{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center}nav .tag,nav .sp,nav label{display:none}main{padding:0 14px 30px}.ban{margin:0 -14px 16px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F4F6;--tx:#1B2430;--mu:#5F6B7A;--bd:#DADFE6;--bl:#0B6B8A;--tl:#0E7C74;--gy:#EDF0F3;font-family:"Public Sans","Segoe UI",system-ui,sans-serif}
+body{font-family:"Public Sans","Segoe UI",system-ui,sans-serif;font-size:15px}
+h1,h2,h3,.met,.brand,.vh{font-family:inherit;font-weight:650;letter-spacing:-.01em}
+h1{font-size:22px}h2{font-size:17px}
+nav{background:var(--sf);color:var(--tx);border-right:1px solid var(--bd)}
+nav .brand{color:var(--tx);font-size:19px}nav .tag,nav label{color:var(--mu)}
+nav a{color:var(--tx);border-radius:4px}nav a:hover{background:var(--gy)}nav a.on{background:var(--gy);color:var(--tx);font-weight:600;box-shadow:inset 3px 0 0 var(--tl)}
+nav select{background:var(--sf);border:1px solid var(--bd);color:var(--tx)}nav select option{color:#1B2430}
+.rst{border:1px solid var(--bd);color:var(--mu);border-radius:4px}
+.ban{background:none;border-bottom:1px solid var(--bd);color:var(--mu);padding:8px 28px;margin:0 -28px 22px;font-size:13px}
+.ban b{background:var(--gy);color:var(--tx);border-radius:3px}
+.card{border-radius:4px;box-shadow:none}.bdg{border-radius:4px}.btn{border-radius:4px}.btn.p{background:var(--tl);border-color:var(--tl)}
+input,select,textarea{border-radius:4px}
+.strip{display:flex;flex-wrap:wrap;gap:36px;padding:2px 0 18px;margin-bottom:20px;border-bottom:1px solid var(--bd)}
+.strip a{text-decoration:none;color:var(--tx)}.strip b{display:block;font-size:28px;font-weight:600;line-height:1.1}.strip span{color:var(--mu);font-size:13px}
+.drop{display:block;border:1.5px dashed var(--bd);border-radius:4px;padding:34px 16px;text-align:center;cursor:pointer;background:var(--sf);margin-bottom:14px}.drop:hover{border-color:var(--tl)}
+.bar{height:6px;background:var(--gy);border-radius:3px;overflow:hidden;max-width:420px}.bar i{display:block;height:100%;background:var(--tl);transition:width .15s}
+.rec{background:var(--rd)!important;border-color:var(--rd)!important;color:#fff!important}
+.dr{width:min(580px,100%)}
+.pg{display:flex;align-items:stretch;overflow-x:auto;padding:4px 0 10px}
+.gn{flex:0 0 auto;width:118px;text-align:left;background:var(--sf);border:1px solid var(--bd);border-top:3px solid var(--mu);border-radius:4px;padding:8px 10px;transition:border-color .15s,box-shadow .15s}
+.gn:hover{border-color:var(--bl)}.gn.on{box-shadow:0 0 0 2px var(--bl)}.gn.ok{border-top-color:var(--gn)}.gn.pend{border-top-color:var(--am)}.gn.miss{border-top-color:var(--rd);border-style:dashed}.gn.cor{border-top-color:var(--bl)}
+.gn small{display:block;color:var(--mu);font-size:12px;overflow-wrap:anywhere}.gn b{font-size:13px}
+.gl{flex:0 0 18px;align-self:center;height:2px;background:var(--bd)}
+#gd{margin-top:8px;padding:12px;background:var(--gy);border-radius:4px;animation:sl .15s ease-out}
+.hk{background:var(--mk);cursor:pointer;border-radius:2px;opacity:.65}.hk.on{opacity:1;outline:2px solid var(--bl)}
+.fl{display:block;width:100%;text-align:left;background:var(--sf);border:1px solid var(--bd);border-radius:4px;padding:8px 10px;margin-bottom:8px}.fl.on{border-color:var(--bl);box-shadow:0 0 0 2px var(--bl)}
+.vt{display:flex;gap:8px;flex-wrap:wrap}.vt .btn.on{background:var(--tl);color:#fff;border-color:var(--tl)}
+.chg td{background:var(--amb)}
+</style></head><body>
+<div class="app"><nav aria-label="Main"><div class="brand">MedTrace</div><div class="tag">Source-linked patient records</div><div id="nv"></div><div class="sp"></div><label for="role">Demo role (simulated)</label><select id="role"></select><button class="rst" onclick="resetDemo()">Reset demo data</button></nav>
+<main><div class="ban"><b>DEMO MODE</b><span>Fictional patient data. AI-generated information requires clinician verification. Extraction and approvals are simulated and stored only in this browser.</span></div><div id="v"></div></main></div>
+<div id="ov"></div><div id="toast" role="status"></div>
+<script>
+const P=[{id:'p1',mrn:'DEMO001',name:'Arjun Sharma',age:54,sex:'M',hx:'Type 2 diabetes and hypertension (as recorded in source documents)'},
+{id:'p2',mrn:'DEMO002',name:'Meera Iyer',age:41,sex:'F',hx:'Hypothyroidism (as recorded in source documents)'},
+{id:'p3',mrn:'DEMO003',name:'Kabir Rao',age:67,sex:'M',hx:'Post-discharge cardiac follow-up (as recorded in source documents)'}];
+const DOCS=[
+{id:'d0',pid:'p1',name:'HbA1c_Feb2026.pdf',cat:'Laboratory report',date:'2026-02-10',snip:'HbA1c: 8.4 %',text:'CITY LAB (fictional)\nPatient: DEMO001\nCollected: 10 Feb 2026\n\nHbA1c: 8.4 %   (ref 4.0-5.6)\nFasting glucose: 162 mg/dL'},
+{id:'d1',pid:'p1',name:'HbA1c_Aug2026.pdf',cat:'Laboratory report',date:'2026-08-12',snip:'HbA1c: 7.9 %',text:'CITY LAB (fictional)\nPatient: DEMO001\nCollected: 12 Aug 2026\n\nHbA1c: 7.9 %   (ref 4.0-5.6)\nLipid panel: pending'},
+{id:'d2',pid:'p1',name:'Consult_Note_Sep2026.pdf',cat:'Consultation note',date:'2026-09-02',snip:'Metformin 500 mg twice daily after meals',text:'Consultation note (fictional)\nPatient: DEMO001   Date: 02 Sep 2026\n\nPatient reports good adherence. Plan: Continue Metformin 500 mg twice daily after meals. Review in 3 months.'},
+{id:'d3',pid:'p1',name:'HbA1c_Aug2026_Corrected.pdf',cat:'Laboratory report',date:'2026-09-20',snip:'Corrected value: 7.2 %',text:'CITY LAB - CORRECTION NOTICE (fictional)\nPatient: DEMO001   Sample: 12 Aug 2026\n\nTest: HbA1c\nOriginal reported result: 7.9 %\nCorrected value: 7.2 %\nReason: analyzer calibration error'},
+{id:'d4',pid:'p2',name:'Creatinine_Oct2026.png',cat:'Laboratory report',date:'2026-10-05',snip:'Creatinine: 0.9 mg/dL',text:'CITY LAB (fictional)\nPatient: DEMO002\nCollected: 05 Oct 2026\n\nCreatinine: 0.9 mg/dL   (ref 0.6-1.1)'},
+{id:'d5',pid:'p3',name:'Rx_Discharge_Sep2026.pdf',cat:'Prescription',date:'2026-09-28',snip:'Aspirin 75 mg once daily',text:'Discharge prescription (fictional)\nPatient: DEMO003   Date: 28 Sep 2026\n\nAspirin 75 mg once daily after food.'}];
+const seed=()=>({ev:[
+{id:'e0',pid:'p1',type:'Laboratory',fld:'HbA1c',val:'8.4',unit:'%',title:'HbA1c 8.4 %',date:'2026-02-10',st:'approved',doc:'d0',by:'Lab Technician',ver:1},
+{id:'e1',pid:'p1',type:'Laboratory',fld:'HbA1c',val:'7.9',unit:'%',title:'HbA1c 7.9 %',date:'2026-08-12',st:'superseded',doc:'d1',by:'Lab Technician',ver:1},
+{id:'e1b',pid:'p1',type:'Laboratory',fld:'HbA1c',val:'7.2',unit:'%',title:'HbA1c 7.2 % (corrected)',date:'2026-09-20',st:'approved',doc:'d3',by:'Lab Technician',ver:2,sup:'e1',why:'Lab issued correction notice: analyzer calibration error'},
+{id:'e2',pid:'p1',type:'Consultation',fld:'Medication text',val:'Metformin 500 mg twice daily after meals',unit:'',title:'Consultation note: medication text',date:'2026-09-02',st:'pending',doc:'d2',by:'Nurse',ver:1},
+{id:'e3',pid:'p2',type:'Laboratory',fld:'Creatinine',val:'0.9',unit:'mg/dL',title:'Creatinine 0.9 mg/dL',date:'2026-10-05',st:'pending',doc:'d4',by:'Lab Technician',ver:1},
+{id:'e4',pid:'p3',type:'Prescription',fld:'Medication text',val:'Aspirin 750 mg once daily',unit:'',title:'Prescription: medication text',date:'2026-09-28',st:'rejected',doc:'d5',by:'Nurse',ver:1}],
+au:[
+{id:'a1',t:'2026-08-12 10:02',actor:'Extraction (simulated)',role:'System',act:'Suggestion created',ev:'e1',sum:'Suggested HbA1c 7.9 % from HbA1c_Aug2026.pdf'},
+{id:'a2',t:'2026-08-13 09:15',actor:'Dr. Nisha Menon',role:'Doctor',act:'Approved',ev:'e1',sum:'Approved HbA1c 7.9 %',prev:'',next:'7.9 %'},
+{id:'a3',t:'2026-09-20 11:40',actor:'Extraction (simulated)',role:'System',act:'Suggestion created',ev:'e1b',sum:'Suggested corrected HbA1c 7.2 % from correction notice'},
+{id:'a4',t:'2026-09-21 08:50',actor:'Dr. Nisha Menon',role:'Doctor',act:'Approved correction',ev:'e1b',sum:'Corrected HbA1c 7.9 % to 7.2 %; v1 retained',prev:'7.9 %',next:'7.2 %'},
+{id:'a5',t:'2026-09-28 16:20',actor:'Extraction (simulated)',role:'System',act:'Suggestion created',ev:'e4',sum:'Suggested Aspirin 750 mg once daily'},
+{id:'a6',t:'2026-09-29 09:05',actor:'Dr. Nisha Menon',role:'Doctor',act:'Rejected',ev:'e4',sum:'Rejected: suggested 750 mg does not match source (75 mg)',prev:'Aspirin 750 mg once daily',next:'(not recorded)'},
+{id:'a7',t:'2026-09-02 12:00',actor:'Extraction (simulated)',role:'System',act:'Suggestion created',ev:'e2',sum:'Suggested medication text from consultation note'},
+{id:'a8',t:'2026-10-05 14:30',actor:'Extraction (simulated)',role:'System',act:'Suggestion created',ev:'e3',sum:'Suggested Creatinine 0.9 mg/dL'}]});
+let S;try{S=JSON.parse(localStorage.getItem('mt1'))}catch(e){}
+if(!S||!S.ev)S=seed();
+let role='Doctor',msgs=[],askP='p1';
+const ME={Doctor:'Dr. Nisha Menon','Nurse':'Nurse Ravi Kumar','Lab Technician':'Tech Anil Das',Admin:'Admin Priya Nair'};
+const save=()=>{try{localStorage.setItem('mt1',JSON.stringify(S))}catch(e){}};
+const $=s=>document.querySelector(s);
+const pt=id=>P.find(p=>p.id===id),dc=id=>DOCS.find(d=>d.id===id),ev=id=>S.ev.find(e=>e.id===id);
+const ic={pending:'◔ Pending review',approved:'✓ Approved',rejected:'✕ Rejected',superseded:'↺ Superseded'};
+const bd=s=>`<span class="bdg ${s}">${ic[s]}</span>`;
+const now=()=>new Date().toISOString().slice(0,16).replace('T',' ');
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',2800)}
+function resetDemo(){DOCS.length=6;S=seed();save();msgs=[];toast('Demo data reset to initial state');route()}
+function modal(h){$('#ov').innerHTML=`<div class="ov c" onclick="if(event.target===this)closeM()"><div class="md" role="dialog" aria-modal="true">${h}</div></div>`}
+function drawer(h){$('#ov').innerHTML=`<div class="ov" onclick="if(event.target===this)closeM()"><div class="dr" role="dialog" aria-modal="true"><button class="btn" onclick="closeM()" style="float:right">Close</button>${h}</div></div>`}
+function closeM(){$('#ov').innerHTML=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+const hl=(d,s)=>{s=s||d.snip;return d.text.replace(s,()=>'<mark>'+s+'</mark>')};
+function docView(id){const d=dc(id);if(!d)return`<div class="nd miss">Source document missing</div>`;
+return`<h2>${d.name}</h2><p class="mu">${d.cat} · ${pt(d.pid).name} (${pt(d.pid).mrn}) · ${d.date}<br>Synthetic document preview (fictional data)</p><div class="src">${hl(d)}</div><p class="mu">Highlighted text is the source snippet the record is linked to.</p>
+<div class="row"><button class="btn" onclick="go('#/patient/${d.pid}/documents')">Open patient</button></div>`}
+function openDoc(id){drawer(docView(id))}
+function openEv(id){const e=ev(id),d=dc(e.doc),prev=e.sup&&ev(e.sup),next=S.ev.find(x=>x.sup===id);
+const rv=S.au.filter(a=>a.ev===id&&/Approved|Rejected/.test(a.act)).pop();
+drawer(`<h2>${e.title}</h2><div class="row" style="margin:8px 0">${bd(e.st)}<span class="mu">v${e.ver} · ${e.type} · ${e.date}</span></div>
+<p><b>${e.fld}:</b> ${e.val} ${e.unit}</p><p class="mu">Submitted via ${e.by}. ${rv?`Reviewed by ${rv.actor} at ${rv.t}.`:e.st==='pending'?'Awaiting clinician review.':'No review decision on record.'}${e.why?`<br>Correction reason: ${e.why}`:''}</p>
+${d?`<h3>Source</h3><p><button class="cite" onclick="openDoc('${d.id}')">${d.name}</button></p><div class="src">${hl(d,e.snip)}</div>`:`<div class="nd miss" style="padding:10px;border:1px dashed var(--rd);border-radius:8px">No source document attached</div>`}
+${prev?`<p>Replaces: <button class="cite" onclick="openEv('${prev.id}')">${prev.title} (v${prev.ver})</button></p>`:''}${next?`<p>Replaced by: <button class="cite" onclick="openEv('${next.id}')">${next.title} (v${next.ver})</button></p>`:''}
+<h3 style="margin-top:14px">How this record got here</h3>${graph(e.id)}<div class="row" style="margin-top:12px"><button class="btn" onclick="go('#/evidence/${e.id}')">Evidence inspector</button>${chainOf(e).length>1?`<button class="btn" onclick="go('#/versions/${e.id}')">Version history</button>`:`<span class="mu">No earlier versions</span>`}<button class="btn p" onclick="go('#/why/${e.id}')">Why did this change?</button>
+${e.st==='pending'?`<button class="btn" onclick="go('#/review/${e.id}')">Open review</button>`:''}
+${e.st==='approved'&&!next?`<button class="btn" ${role!=='Doctor'?'disabled title="Doctor role required (simulated)"':''} onclick="corrM('${e.id}')">Submit correction</button>`:''}</div>`)}
+function corrM(id){const e=ev(id);modal(`<h2>Correct ${e.fld}</h2><p class="mu">The current version (v${e.ver}) will be kept as history. A new version is created.</p>
+<p><label>New value<br><input id="cv" value="${e.val}" style="width:100%"></label></p><p><label>Reason for correction<br><input id="cr" style="width:100%" placeholder="Required"></label></p><p id="ce" style="color:var(--rd)"></p>
+<div class="row"><button class="btn p" onclick="doCorr('${id}')">Create version ${e.ver+1}</button><button class="btn" onclick="closeM()">Cancel</button></div>`)}
+function doCorr(id){const e=ev(id),v=$('#cv').value.trim(),r=$('#cr').value.trim();if(!v||!r){$('#ce').textContent='Enter a value and a reason.';return}
+const n='e'+Date.now().toString(36);e.st='superseded';
+S.ev.push({id:n,pid:e.pid,type:e.type,fld:e.fld,val:v,unit:e.unit,title:`${e.fld} ${v}${e.unit?' '+e.unit:''} (corrected)`,date:now().slice(0,10),st:'approved',doc:null,by:role,ver:e.ver+1,sup:id,why:r});
+S.au.push({id:'a'+Date.now(),t:now(),actor:ME[role],role,act:'Approved correction',ev:n,sum:`Corrected ${e.fld} ${e.val} to ${v}; v${e.ver} retained`,prev:`${e.val} ${e.unit}`,next:`${v} ${e.unit}`});
+save();closeM();toast('New version created; previous version retained');go('#/why/'+n)}
+const go=h=>{closeM();location.hash=h};
+const NAV=[['','Dashboard'],['patients','Patients'],['review','Review queue'],['ask','Ask the record'],['upload','Add a document'],['dictate','Dictate a note'],['audit','Audit history']];
+function route(){const h=location.hash.replace('#/','').split('/'),k=h[0]||'';
+$('#nv').innerHTML=NAV.map(n=>`<a href="#/${n[0]}" class="${(n[0]===k||(k==='why'&&n[0]==='audit')||(k==='patient'&&n[0]==='patients'))?'on':''}">${n[1]}${n[0]==='review'?` <span class="bdg pending" style="margin-left:auto">${S.ev.filter(e=>e.st==='pending').length}</span>`:''}</a>`).join('');
+const V={'':dash,evidence:evi,versions:ver,upload:upl,dictate:dic,patients:pats,patient:prof,review:rev,ask:ask,audit:aud,why:why}[k]||dash;$('#v').innerHTML=V(h[1],h[2]);window.scrollTo(0,0)}
+function dash(){const pend=S.ev.filter(e=>e.st==='pending'),recent=[...S.au].sort((a,b)=>b.t.localeCompare(a.t)).slice(0,5);
+const m=[[P.length,'Patients','#/patients'],[pend.length,'Pending clinical reviews','#/review'],[DOCS.length,'Source documents','#/patients'],[S.au.filter(a=>/Approved|Rejected/.test(a.act)).length,'Review decisions on record','#/audit']];
+return`<h1>Good ${new Date().getHours()<12?'morning':'afternoon'}, ${ME[role]}</h1><p class="sub">${pend.length} ${pend.length===1?'suggestion is':'suggestions are'} waiting for a decision.</p>
+<div class="strip">${m.map(x=>`<a href="${x[2]}"><b>${x[0]}</b><span>${x[1]}</span></a>`).join('')}</div>
+<div class="grid g2" style="margin-top:14px"><div class="card"><h2>Awaiting review</h2>${pend.length?pend.map(e=>`<p><a href="#/review/${e.id}"><b>${e.title}</b></a><br><span class="mu">${pt(e.pid).name} · ${dc(e.doc).name}</span></p>`).join(''):'<p class="mu">Nothing is waiting for review.</p>'}</div>
+<div class="card"><h2>Latest record changes</h2>${recent.map(a=>`<p><a href="#/why/${a.ev}">${a.act}</a> · ${pt(ev(a.ev).pid).name}<br><span class="mu">${a.t} · ${a.actor}</span></p>`).join('')}</div></div>
+<div class="card" style="margin-top:14px"><h2>Suggested demo path</h2><p class="mu">1. Open <a href="#/patient/p1/timeline">Arjun Sharma's timeline</a> → 2. <a href="#/review/e2">Review the pending suggestion</a> as Doctor → 3. <a href="#/ask">Ask the record</a> which document supports it → 4. <a href="#/why/e1b">Why did the HbA1c change?</a></p></div>`}
+let q='';
+function pats(){const l=P.filter(p=>(p.name+p.mrn).toLowerCase().includes(q.toLowerCase()));
+return`<h1>Patients</h1><p class="sub">Fictional demo patients.</p><p><input aria-label="Search patients" placeholder="Search name or ID" value="${q}" oninput="q=this.value;$('#pl').innerHTML=pl()" style="width:min(320px,100%)"></p><div id="pl">${pl()}</div>`}
+function pl(){const l=P.filter(p=>(p.name+p.mrn).toLowerCase().includes(q.toLowerCase()));if(!l.length)return`<div class="card mu">No patient matches “${q}”.</div>`;
+return`<div class="card sc"><table class="tbl"><tr><th>Patient</th><th>ID</th><th>Age/Sex</th><th>Pending</th><th>Latest activity</th></tr>${l.map(p=>{const es=S.ev.filter(e=>e.pid===p.id).sort((a,b)=>b.date.localeCompare(a.date));return`<tr class="cl" onclick="go('#/patient/${p.id}/timeline')"><td><b>${p.name}</b></td><td>${p.mrn}</td><td>${p.age}/${p.sex}</td><td>${es.filter(e=>e.st==='pending').length||'-'}</td><td>${es[0]?es[0].title+' · '+es[0].date:'-'}</td></tr>`}).join('')}</table></div>`}
+let tf='all';
+function prof(id,tab){const p=pt(id);if(!p)return`<div class="card"><h2>Patient not found</h2><a href="#/patients">Back to patients</a></div>`;tab=tab||'timeline';
+const T=[['timeline','Medical timeline'],['documents','Documents'],['labs','Lab trends'],['history','Change history']];
+let b='';const es=S.ev.filter(e=>e.pid===id).sort((a,c)=>c.date.localeCompare(a.date));
+if(tab==='timeline'){const l=es.filter(e=>tf==='all'||e.st===tf);
+b=`<div class="row" style="margin-bottom:12px"><label class="mu">Status <select onchange="tf=this.value;route()">${['all','pending','approved','rejected','superseded'].map(s=>`<option ${s===tf?'selected':''}>${s}</option>`).join('')}</select></label><span class="mu">Newest first. Earlier versions are kept, never overwritten.</span></div>
+<div class="tl">${l.length?l.map(e=>`<div class="it ${e.st}"><button class="ev" onclick="openEv('${e.id}')"><div class="row"><b>${e.title}</b>${bd(e.st)}${e.ver>1?`<span class="bdg superseded">v${e.ver}</span>`:''}</div><div class="mu">${e.type} · ${e.date} · ${dc(e.doc)?dc(e.doc).name:'no source attached'}</div></button></div>`).join(''):'<p class="mu">No events match this filter.</p>'}</div>`}
+if(tab==='documents'){const l=DOCS.filter(d=>d.pid===id);b=`<div class="card sc"><table class="tbl"><tr><th>Document</th><th>Category</th><th>Date</th></tr>${l.map(d=>`<tr class="cl" onclick="openDoc('${d.id}')"><td><b>${d.name}</b></td><td>${d.cat}</td><td>${d.date}</td></tr>`).join('')}</table></div>`}
+if(tab==='labs'){b=labs(id)}
+if(tab==='history'){const l=S.au.filter(a=>ev(a.ev).pid===id).sort((a,c)=>c.t.localeCompare(a.t));b=audT(l)}
+return`<p class="mu"><a href="#/patients">Patients</a> / ${p.name}</p><h1>${p.name} <span class="mu" style="font:15px sans-serif">${p.mrn} · ${p.age}/${p.sex}</span></h1><p class="sub">${p.hx}</p>
+<div class="tabs">${T.map(t=>`<a href="#/patient/${id}/${t[0]}" class="${t[0]===tab?'on':''}">${t[1]}</a>`).join('')}</div>${b}`}
+let lt={};
+function labs(id){const tests=[...new Set(S.ev.filter(e=>e.pid===id&&e.type==='Laboratory').map(e=>e.fld))];if(!tests.length)return`<div class="card mu">No laboratory results on record for this patient.</div>`;
+const t=tests.includes(lt[id])?lt[id]:tests[0];const pts=S.ev.filter(e=>e.pid===id&&e.fld===t&&['approved','superseded'].includes(e.st)).sort((a,b)=>a.date.localeCompare(b.date));
+const pend=S.ev.filter(e=>e.pid===id&&e.fld===t&&e.st==='pending').length;
+let svg='<p class="mu">No approved values for this test yet.</p>';
+if(pts.length){const vs=pts.map(e=>+e.val),mn=Math.min(...vs)-.5,mx=Math.max(...vs)+.5,W=560,H=210,x=i=>40+(pts.length>1?i*(W-80)/(pts.length-1):(W-80)/2),y=v=>H-30-(v-mn)/(mx-mn)*(H-60);
+const cur=pts.filter(e=>e.st==='approved');svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:640px" role="img" aria-label="${t} trend"><polyline fill="none" stroke="var(--tl)" stroke-width="2" points="${pts.map((e,i)=>x(i)+','+y(+e.val)).join(' ')}"/>${pts.map((e,i)=>`<g style="cursor:pointer" onclick="openEv('${e.id}')"><circle cx="${x(i)}" cy="${y(+e.val)}" r="6" fill="${e.st==='approved'?'var(--tl)':'var(--sf)'}" stroke="${e.st==='approved'?'var(--tl)':'var(--mu)'}" stroke-width="2"/><text x="${x(i)}" y="${y(+e.val)-12}" text-anchor="middle" font-size="12" fill="var(--tx)">${e.val}</text><text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--mu)">${e.date}</text></g>`).join('')}</svg>`}
+return`<div class="card"><div class="row"><label>Test <select onchange="lt['${id}']=this.value;route()">${tests.map(x=>`<option ${x===t?'selected':''}>${x}</option>`).join('')}</select></label><span class="mu">Unit: ${pts[0]?pts[0].unit:''} · Filled = current approved, hollow = superseded version · click a point for its source</span></div>${svg}${pend?`<p class="mu">${pend} pending value(s) not plotted until approved.</p>`:''}</div>`}
+function rev(id){if(!id){const l=S.ev.filter(e=>e.st==='pending');return`<h1>Review queue</h1><p class="sub">Simulated AI suggestions stay pending until a clinician decides.</p><div class="card sc">${l.length?`<table class="tbl"><tr><th>Suggestion</th><th>Patient</th><th>Source</th></tr>${l.map(e=>`<tr class="cl" onclick="go('#/review/${e.id}')"><td><b>${e.title}</b></td><td>${pt(e.pid).name}</td><td>${dc(e.doc).name}</td></tr>`).join('')}</table>`:'<p class="mu">The queue is empty. Use Reset demo data to restore examples.</p>'}</div>`}
+const e=ev(id);if(!e)return`<div class="card"><h2>Record not found</h2></div>`;const d=dc(e.doc),can=role==='Doctor'&&e.st==='pending';
+return`<p class="mu"><a href="#/review">Review queue</a> / ${e.title}</p><h1>Review suggestion</h1><p class="sub">${pt(e.pid).name} · ${e.type} · extraction is simulated</p>
+<div class="grid g2"><div class="card"><h3>Original source</h3><p class="mu">${d.name}, ${d.cat}</p>${IMG[d.id]?`<img src="${IMG[d.id]}" alt="Uploaded file" style="max-width:100%;margin-bottom:10px">`:''}${d.id[0]==='u'&&d.cat!=='Dictated note'?'<p class="mu">The text below is sample text for this document type. The demo does not read the pixels of your file.</p>':''}<div class="src">${hl(d,e.snip)}</div></div>
+<div class="card"><h3>Suggested value ${bd(e.st)}</h3><p><label>${e.fld}${e.unit?' ('+e.unit+')':''}<br><input id="rv" value="${e.val}" ${can?'':'disabled'} style="width:100%"></label></p>
+<p class="mu">Source reference: “${e.snip||d.snip}”</p>${role!=='Doctor'?'<p class="mu">Only the Doctor role can decide (simulated; real authorization belongs to the backend).</p>':''}${e.st!=='pending'?'<p class="mu">Decision already recorded.</p>':''}
+<div class="row"><button class="btn p" ${can?'':'disabled'} onclick="decM('${id}','Approved')">Approve</button><button class="btn d" ${can?'':'disabled'} onclick="decM('${id}','Rejected')">Reject</button><button class="btn" onclick="go('#/patient/${e.pid}/timeline')">Patient timeline</button><button class="btn" onclick="go('#/evidence/${e.id}')">Inspect evidence</button></div></div></div>`}
+function decM(id,a){const e=ev(id),v=$('#rv').value.trim();if(!v){toast('Value cannot be empty');return}
+modal(`<h2>${a==='Approved'?'Approve':'Reject'} this suggestion?</h2><p>${e.fld}: <b>${v}</b></p><p class="mu">Demo action only: this is not a real clinical authorization. The decision is added to the timeline and audit history.</p>
+<div class="row"><button class="btn p" onclick="dec('${id}','${a}')">Confirm ${a.toLowerCase().replace('ed','e')}</button><button class="btn" onclick="closeM()">Cancel</button></div>`)}
+function dec(id,a){const e=ev(id),v=$('#rv')?$('#rv').value.trim():e.val;const edited=v!==e.val;
+S.au.push({id:'a'+Date.now(),t:now(),actor:ME[role],role,act:a,ev:id,sum:`${a} ${e.fld}: ${v}${edited?' (edited by reviewer from "'+e.val+'")':''}`,prev:edited?e.val:'',next:a==='Approved'?v:'(not recorded)'});
+if(a==='Approved'){e.val=v;e.title=e.type==='Laboratory'?`${e.fld} ${v} ${e.unit}`:e.title}e.st=a.toLowerCase();save();closeM();toast(a+' (demo). Added to timeline and audit history');go('#/why/'+id)}
+function aud(){return`<h1>Audit history</h1><p class="sub">Select a row to see why a record changed.</p><div class="row" style="margin-bottom:12px"><label class="mu">Patient <select id="af" onchange="$('#at').innerHTML=audT(af())"><option value="">All</option>${P.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></label></div><div id="at">${audT([...S.au].sort((a,b)=>b.t.localeCompare(a.t)))}</div>`}
+const af=()=>[...S.au].filter(a=>!$('#af').value||ev(a.ev).pid===$('#af').value).sort((a,b)=>b.t.localeCompare(a.t));
+function audT(l){if(!l.length)return`<div class="card mu">No audit events for this selection.</div>`;return`<div class="card sc"><table class="tbl"><tr><th>Time</th><th>Actor</th><th>Action</th><th>Patient</th><th>Summary</th></tr>${l.map(a=>`<tr class="cl" onclick="go('#/why/${a.ev}')"><td>${a.t}</td><td>${a.actor}<br><span class="mu">${a.role}</span></td><td>${a.act}</td><td>${pt(ev(a.ev).pid).name}</td><td>${a.sum}</td></tr>`).join('')}</table></div>`}
+function diff(a,b){return`<span class="df"><del>${a||'(empty)'}</del> → <ins>${b}</ins></span>`}
+function why(id){const e=ev(id);if(!e)return`<div class="card"><h2>Record not found</h2></div>`;
+let c=[],x=e;while(x){c.unshift(x);x=x.sup&&ev(x.sup)}let n=S.ev.find(y=>y.sup===c[c.length-1].id);while(n){c.push(n);n=S.ev.find(y=>y.sup===n.id)}
+const chg=S.au.filter(a=>a.ev===e.id&&a.prev).pop();
+let h=`<p class="mu"><a href="#/audit">Audit history</a> / ${e.title}</p><h1>Why did this change?</h1><p class="sub">${pt(e.pid).name} · ${e.fld}. Only relationships recorded in the data are shown; gaps are flagged, not filled in.</p>`;
+if(chg&&chg.prev!==undefined&&chg.act!=='Rejected')h+=`<div class="card" style="margin-bottom:14px"><b>Change:</b> ${diff(chg.prev,chg.next)}<br><span class="mu">${chg.actor} · ${chg.t}</span></div>`;
+h+=`<h3 class="vh">Provenance graph</h3>${graph(e.id)}`;c.forEach((v,i)=>{const d=dc(v.doc),sg=S.au.find(a=>a.ev===v.id&&a.act==='Suggestion created'),rv=S.au.filter(a=>a.ev===v.id&&/Approved|Rejected/.test(a.act)).pop();
+h+=`<h3 class="vh">Version ${v.ver}: ${v.title} ${bd(v.st)}</h3>${i>0?`<p class="mu">Correction reason: ${v.why||'not recorded'}</p>`:''}<div class="pv">
+${d?`<button class="nd" onclick="openDoc('${d.id}')"><b>1. Source document</b><br>${d.name}<br><span class="mu">“${v.snip||d.snip}”</span></button>`:`<div class="nd miss"><b>1. Source document</b><br>No source attached: provenance incomplete</div>`}
+${sg?`<div class="nd"><b>2. Extraction suggestion (simulated)</b><br><span class="mu">${sg.t} · ${sg.sum}</span></div>`:`<div class="nd miss"><b>2. Extraction suggestion</b><br>No suggestion event recorded</div>`}
+${rv?`<div class="nd"><b>3. Human review: ${rv.act}</b><br>${rv.actor} (${rv.role}) · <span class="mu">${rv.t}<br>${rv.sum}</span></div>`:v.st==='pending'?`<div class="nd"><b>3. Human review</b><br>Awaiting decision. <a href="#/review/${v.id}">Open review</a></div>`:`<div class="nd miss"><b>3. Human review</b><br>No review decision recorded: provenance incomplete</div>`}
+<button class="nd" onclick="openEv('${v.id}')"><b>4. Record version v${v.ver}</b><br>${v.title}</button></div>`});
+return h}
+function ask(){const p=pt(askP);return`<h1>Ask the patient record</h1><p class="sub">Deterministic demo assistant. Answers come only from the demo dataset; no LLM is connected and it never diagnoses or recommends treatment.</p>
+<div class="row" style="margin-bottom:12px"><label>Patient <select onchange="askP=this.value;msgs=[];route()">${P.map(x=>`<option value="${x.id}" ${x.id===askP?'selected':''}>${x.name}</option>`).join('')}</select></label><button class="btn" onclick="msgs=[];route()">Clear conversation</button></div>
+<div class="row" style="margin-bottom:12px">${['Which laboratory reports are available?','Which entries are awaiting review?','What changed between earlier and latest entries?','Who approved record updates?'].map(s=>`<button class="chip" onclick="sendQ(this.textContent)">${s}</button>`).join('')}</div>
+<div id="cv">${msgs.map(m=>m.u?`<div class="msg u">${m.t}</div>`:`<div class="msg a">${m.t}${m.c.map(c=>`<br><button class="cite" onclick="${c[0]==='d'?`openDoc('${c[1]}')`:`openEv('${c[1]}')`}">${c[0]==='d'?dc(c[1]).name:ev(c[1]).title}</button>`).join('')}</div>`).join('')||'<p class="mu">Choose a suggested question or type one.</p>'}</div>
+<div class="row"><input id="qi" aria-label="Question" style="flex:1;min-width:200px" placeholder="Ask about ${p.name}'s record" onkeydown="if(event.key==='Enter')sendQ($('#qi').value)"><button class="btn p" onclick="sendQ($('#qi').value)">Ask</button><button class="btn" id="mq" onclick="micAsk()">Speak</button></div>`}
+function sendQ(t){t=(t||'').trim();if(!t)return;const q=t.toLowerCase(),id=askP,es=S.ev.filter(e=>e.pid===id);let r={t:'Insufficient information in the available record to answer this question.',c:[]};
+if(/lab|report|document/.test(q)){const l=DOCS.filter(d=>d.pid===id&&d.cat==='Laboratory report');r=l.length?{t:`${l.length} laboratory report(s) on file:`,c:l.map(d=>['d',d.id])}:{t:'No laboratory reports are on file for this patient.',c:[]}}
+else if(/await|pending|review/.test(q)){const l=es.filter(e=>e.st==='pending');r=l.length?{t:`${l.length} AI suggestion(s) are pending and not yet clinician-approved:`,c:l.map(e=>['e',e.id])}:{t:'No entries are awaiting review for this patient.',c:[]}}
+else if(/chang|correct|differ|earlier|latest/.test(q)){const l=es.filter(e=>e.sup);r=l.length?{t:l.map(e=>`${e.fld}: v${ev(e.sup).ver} (${ev(e.sup).val} ${e.unit}) was superseded by v${e.ver} (${e.val} ${e.unit}). Reason: ${e.why||'not recorded'}. The earlier version is retained.`).join(' '),c:l.flatMap(e=>[['e',e.sup],['e',e.id]])}:{t:'No corrected entries exist for this patient; there are no version changes to compare.',c:[]}}
+else if(/who|approv/.test(q)){const l=S.au.filter(a=>ev(a.ev).pid===id&&/Approved|Rejected/.test(a.act));r=l.length?{t:l.map(a=>`${a.act} by ${a.actor} (${a.role}) at ${a.t}.`).join(' '),c:l.map(a=>['e',a.ev])}:{t:'No review decisions are recorded for this patient yet.',c:[]}}
+msgs.push({u:1,t},{t:r.t,c:r.c});route();setTimeout(()=>{const i=$('#qi');i&&i.focus()},0)}
+const IMG={};let UP={pid:'p1',cat:'Laboratory report'},DT={pid:'p1',lang:'en-IN'},rec=null;
+const today=()=>now().slice(0,10),can=l=>l.includes(role);
+function listen(lang,cont,onRes,onEnd,onErr){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){onErr('This browser does not support speech recognition. Try Chrome or Edge, or type instead.');return null}
+const r=new SR();r.lang=lang;r.continuous=cont;r.interimResults=true;
+r.onresult=e=>{let s='';for(const x of e.results)s+=x[0].transcript;onRes(s.trim())};
+r.onerror=e=>onErr(e.error==='not-allowed'||e.error==='service-not-allowed'?'The microphone did not start. This preview most likely does not pass microphone access to the page, whatever your browser settings say. Use the download button to run the app as a normal file in Chrome or Edge.':'Speech recognition stopped ('+e.error+').');
+r.onend=onEnd;try{r.start()}catch(x){onErr('Could not start the microphone.');return null}return r}
+function micAsk(){const b=$('#mq');if(window.__r){window.__r.stop();return}b.textContent='Listening...';window.__r=listen('en-IN',false,s=>{$('#qi').value=s},()=>{window.__r=null;const b2=$('#mq');if(b2)b2.textContent='Speak';const i=$('#qi');if(i&&i.value)sendQ(i.value)},m=>toast(m));if(!window.__r)b.textContent='Speak'}
+function mkRecord(o){const id='u'+Date.now().toString(36),eid='e'+id;
+const d={id,pid:o.pid,name:o.name,cat:o.cat,date:today(),snip:o.snip,text:o.text};DOCS.push(d);(S.ud=S.ud||[]).push(d);
+S.ev.push({id:eid,pid:o.pid,type:o.type,fld:o.fld,val:o.val,unit:o.unit||'',title:o.title,date:today(),st:'pending',doc:id,by:role,ver:1});
+S.au.push({id:'a'+Date.now(),t:now(),actor:o.actor,role:o.arole,act:'Suggestion created',ev:eid,sum:o.sum});save();return{id,eid}}
+function upl(){const ok=can(['Doctor','Lab Technician']);
+return`<h1>Add a document</h1><p class="sub">Drop in a photo or scan of a report, prescription or note. PNG and JPG files are read by AI (you are asked for permission once) and every finding becomes its own suggestion, pending until a doctor reviews it. PDFs use sample text in this demo.</p>${ok?'':`<p class="mu">The ${role} role can't add documents in this demo. Switch to Doctor or Lab Technician.</p>`}
+<div class="row" style="margin-bottom:12px"><label>Patient <select onchange="UP.pid=this.value">${P.map(p=>`<option value="${p.id}" ${p.id===UP.pid?'selected':''}>${p.name}</option>`).join('')}</select></label><label>Document type <select onchange="UP.cat=this.value">${['Laboratory report','Prescription','Consultation note','Discharge summary','Imaging report','Other'].map(c=>`<option ${c===UP.cat?'selected':''}>${c}</option>`).join('')}</select></label></div>
+<label class="drop" ondragover="event.preventDefault()" ondrop="event.preventDefault();pick(event.dataTransfer.files[0])"><input type="file" accept=".pdf,.png,.jpg,.jpeg" hidden onchange="pick(this.files[0])"><b>Drag a file here or choose one</b><br><span class="mu">PDF, PNG or JPG, up to 10 MB</span></label><div id="upr"></div>`}
+function pick(f){if(!f)return;if(!can(['Doctor','Lab Technician'])){toast('Your role cannot add documents');return}
+if(!/\.(pdf|png|jpe?g)$/i.test(f.name)||f.size>1e7){$('#upr').innerHTML=`<p style="color:var(--rd)">${f.name} can't be added. Use a PDF, PNG or JPG under 10 MB.</p>`;return}
+UP.file=f;UP.url='';const im=/\.(png|jpe?g)$/i.test(f.name),show=()=>{$('#upr').innerHTML=`<div class="card row">${UP.url?`<img src="${UP.url}" alt="Preview of ${f.name}" style="max-height:160px;max-width:100%">`:''}<div><b>${f.name}</b><br><span class="mu">${Math.round(f.size/1024)} KB</span><p><button class="btn p" onclick="extract()">Read text from this file</button></p></div></div><div id="pg"></div>`};
+if(im){const r=new FileReader();r.onload=()=>{UP.url=r.result;show()};r.readAsDataURL(f)}else show()}
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function extract(){const f=UP.file,pg=$('#pg'),im=/\.(png|jpe?g)$/i.test(f.name);let sm=null;try{sm=await claude.use('sample')}catch(e){}
+if(!sm||!im){pg.innerHTML=`<p class="mu">${im?'Text reading is not available in this view.':'Real text reading works on PNG and JPG files.'} Using sample text for the demo instead.</p>`;setTimeout(extractSim,900);return}
+pg.innerHTML='<p class="mu">Reading text from the image...</p><div class="bar"><i style="width:60%"></i></div>';
+const PR='You read a photo or scan of a medical document. Return ONLY JSON with keys: documentType (one of Laboratory report, Prescription, Consultation note, Discharge summary, Imaging report, Other), documentDate (YYYY-MM-DD or empty string), patientName (as printed, or empty string), rawText (full transcription, keep line breaks), fields (array of objects with label, value, unit, sourceText). Make one field per lab test, per medication, and per key clinical statement. sourceText must be the exact printed line copied from rawText. Never add or infer anything that is not printed. If nothing is readable, return an empty fields array.';
+try{const r=await sm.json(PR,{images:[f],cache:false});mkMulti(r,f)}catch(e){pg.innerHTML=`<p style="color:var(--rd)">Could not read this image: ${esc(e&&e.message||'unknown error')}. Try a clearer photo, or press the button again.</p><p><button class="btn" onclick="extractSim()">Use sample text instead</button></p>`}}
+function mkMulti(r,f){const id='u'+Date.now().toString(36),c=['Laboratory report','Prescription','Consultation note','Discharge summary','Imaging report','Other'].includes(r.documentType)?r.documentType:UP.cat,fs=(r.fields||[]).filter(x=>x&&x.label&&x.value!==''&&x.value!=null);
+if(!fs.length){$('#pg').innerHTML='<p style="color:var(--rd)">No readable findings were found in this image. Try a clearer, straighter photo.</p>';return}
+const dt=/^\d{4}-\d{2}-\d{2}$/.test(r.documentDate||'')?r.documentDate:today(),raw=esc(r.rawText||fs.map(x=>x.sourceText).join('\n'));
+const d={id,pid:UP.pid,name:f.name,cat:c,date:dt,snip:esc(fs[0].sourceText),text:raw};DOCS.push(d);(S.ud=S.ud||[]).push(d);if(UP.url)IMG[id]=UP.url;
+const ty={'Laboratory report':'Laboratory','Prescription':'Prescription','Consultation note':'Consultation'}[c]||'Document';
+const items=fs.map((x,i)=>({eid:'e'+id+i,l:esc(x.label),v:esc(x.value),u:esc(x.unit),s:esc(x.sourceText)}));
+items.forEach((x,i)=>{S.ev.push({id:x.eid,pid:UP.pid,type:ty,fld:x.l,val:x.v,unit:x.u,title:`${x.l} ${x.v}${x.u?' '+x.u:''}`,date:dt,st:'pending',doc:id,by:role,ver:1,snip:x.s});S.au.push({id:'a'+Date.now()+i,t:now(),actor:'Claude vision reading',role:'System',act:'Suggestion created',ev:x.eid,sum:`Suggested ${x.l} ${x.v} from ${esc(f.name)}`})});save();
+const pn=(r.patientName||'').trim(),bad=pn&&!pt(UP.pid).name.toLowerCase().includes(pn.toLowerCase().split(' ')[0]);
+$('#pg').innerHTML=`<div class="card"><h3>Document details</h3><p>Type: ${c}<br>Date on document: ${r.documentDate?esc(r.documentDate):'not found'}<br>Patient on document: ${pn?esc(pn):'not found'}${bad?`<br><b style="color:var(--rd)">This name does not match ${pt(UP.pid).name}. Check the patient before reviewing.</b>`:''}</p></div>
+<div class="card sc" style="margin-top:12px"><h3>${items.length} ${items.length===1?'finding':'findings'}, all pending review</h3><p class="mu">Read by AI from your image. A clinician must check each one against the source.</p><table class="tbl"><tr><th>Finding</th><th>Value</th><th>Line in the document</th><th></th></tr>${items.map(x=>`<tr><td>${x.l}</td><td>${x.v} ${x.u}</td><td class="mu">${x.s}</td><td><a href="#/review/${x.eid}">Review</a></td></tr>`).join('')}</table><details style="margin-top:10px"><summary class="mu">Full text read from the image</summary><div class="src">${raw}</div></details></div>`;toast(items.length+' suggestions created and pending review')}
+async function dlApp(){try{const d=await claude.use('downloads');if(!d){toast('Downloads are not available in this view');return}await d.save({filename:'medtrace.html',data:'<!DOCTYPE html>\n'+document.documentElement.outerHTML})}catch(e){toast('The file was not saved')}}
+function chainOf(e){let c=[],x=e;while(x){c.unshift(x);x=x.sup&&ev(x.sup)}let n=S.ev.find(y=>y.sup===c[c.length-1].id);while(n){c.push(n);n=S.ev.find(y=>y.sup===n.id)}return c}
+const rvOf=v=>S.au.filter(a=>a.ev===v.id&&/Approved|Rejected/.test(a.act)).pop(),sgOf=v=>S.au.find(a=>a.ev===v.id&&a.act==='Suggestion created'),cap=s=>s[0].toUpperCase()+s.slice(1);
+function nodes(e){const c=chainOf(e),v=c[0],d=dc(v.doc),sg=sgOf(v),rv=rvOf(v),N=[];
+N.push({k:v.id+':src',l:'Source document',s:d?d.name:'Not available',c:d?'ok':'miss',i:'▤'});
+N.push({k:v.id+':ext',l:'AI extraction',s:sg?(sg.actor.includes('simulated')?'Simulated':'Suggested'):'Not available',c:sg?'ok':'miss',i:'◇'});
+N.push({k:v.id+':rev',l:'Clinician review',s:rv?rv.act:v.st==='pending'?'Under review':'Not available',c:rv?(rv.act==='Rejected'?'miss':'ok'):v.st==='pending'?'pend':'miss',i:'✓'});
+N.push({k:v.id+':rec',l:'Approved record',s:v.st==='pending'?'Pending approval':v.st==='rejected'?'Rejected, not recorded':'Version '+v.ver,c:v.st==='pending'?'pend':v.st==='rejected'?'miss':'ok',i:'●'});
+c.slice(1).forEach(w=>{N.push({k:w.id+':cor',l:'Correction',s:'Version '+w.ver,c:'cor',i:'↺'});N.push({k:w.id+':upd',l:'Updated version',s:w.st==='approved'?'Approved':cap(w.st),c:w.st==='approved'?'cor':'pend',i:'●'})});return N}
+function graph(id){const N=nodes(ev(id)),k=N[N.length-1].k;return`<div class="pg">${N.map((n,i)=>(i?'<span class="gl"></span>':'')+`<button class="gn ${n.c}${n.k===k?' on':''}" data-k="${n.k}" onclick="gsel('${n.k}')"><b>${n.i} ${n.l}</b><small>${n.s}</small></button>`).join('')}</div><div id="gd">${detail(k)}</div>`}
+function gsel(k){const g=document.querySelector('#ov #gd')||$('#gd');g.innerHTML=detail(k);g.parentElement.querySelectorAll('.gn').forEach(b=>b.classList.toggle('on',b.dataset.k===k))}
+function detail(k){const[id,t]=k.split(':'),v=ev(id),d=dc(v.doc),sg=sgOf(v),rv=rvOf(v),pr=v.sup&&ev(v.sup);
+if(t==='src')return d?`<b>${d.name}</b> (${d.cat}, ${d.date})<div class="src" style="margin-top:8px;max-height:150px;overflow:auto">${hl(d,v.snip)}</div><div class="row" style="margin-top:8px"><button class="btn" onclick="openDoc('${d.id}')">Open document</button><button class="btn" onclick="go('#/evidence/${v.id}')">Inspect evidence</button></div>`:'Not available. No source document is attached to this record.';
+if(t==='ext')return sg?`Created ${sg.t} by ${sg.actor}.<br>Extracted field: <b>${v.fld}</b> = ${v.val} ${v.unit}<br>Status: ${v.st==='pending'?'pending, not yet approved':'suggestion has been reviewed'}.${sg.actor.includes('simulated')?'<br>This extraction is a demo simulation.':''}`:'Not available. No extraction event is recorded for this record.';
+if(t==='rev')return rv?`<b>${rv.act}</b> by ${rv.actor} (${rv.role}) at ${rv.t}.<br>${rv.sum}`:v.st==='pending'?`Under review: no decision yet.<div class="row" style="margin-top:8px"><button class="btn" onclick="go('#/review/${v.id}')">Open review</button></div>`:'Not available. No review decision is recorded.';
+if(t==='rec'||t==='upd')return`<b>${v.title}</b> ${bd(v.st)}<br>Version ${v.ver}, dated ${v.date}.<div class="row" style="margin-top:8px"><button class="btn" onclick="openEv('${v.id}')">Open record details</button></div>`;
+return`<b>Correction to version ${pr?pr.ver:'?'}</b><br>Reason: ${v.why||'Not recorded'}<br>${rv?`Decided by ${rv.actor} (${rv.role}) at ${rv.t}.<br>`:''}${d?`Correction source: <button class="cite" onclick="openDoc('${d.id}')">${d.name}</button><br>`:'Correction source: not available.<br>'}${pr?`Previous version: <button class="cite" onclick="openEv('${pr.id}')">${pr.title}</button>`:''}`}
+function fields(e){const d=dc(e.doc);if(!d)return{d:null,f:[]};const t=d.text,tl=t.toLowerCase(),sn=e.snip||d.snip,b=t.indexOf(sn),p=pt(e.pid),f=[];
+const fd=(n,s)=>{const i=tl.indexOf(String(n).toLowerCase(),s||0);return i<0?null:[i,i+String(n).length]},nf=(k,l,v)=>({k,l,v,r:null,note:`"${v}" does not appear in the document text.`});
+const im=t.match(/DEMO\d{3}/);f.push(im?{k:'pid',l:'Patient identifier',v:im[0],r:[im.index,im.index+im[0].length],note:im[0]!==p.mrn?`The document shows ${im[0]} but this record belongs to ${p.mrn}.`:''}:{k:'pid',l:'Patient identifier',v:'Not found',r:null,note:'No patient identifier appears in the document text.'});
+const lab=e.type==='Laboratory',vi=b>=0?sn.indexOf(e.val):-1,rr=vi>=0?[b+vi,b+vi+e.val.length]:fd(e.val);
+if(lab){const tr=fd(e.fld,b>=0?b:0)||fd(e.fld);f.push(tr?{k:'test',l:'Test name',v:e.fld,r:tr,note:''}:nf('test','Test name',e.fld))}
+f.push(rr?{k:'res',l:lab?'Test result':e.fld,v:e.val,r:rr,note:''}:nf('res',lab?'Test result':e.fld,e.val));
+if(lab&&e.unit){const ui=vi>=0?sn.indexOf(e.unit,vi+e.val.length):-1;f.push(ui>=0?{k:'unit',l:'Unit',v:e.unit,r:[b+ui,b+ui+e.unit.length],note:''}:nf('unit','Unit',e.unit))}
+const M={Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'},dm=t.match(/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* (\d{4})\b/),is=t.match(/\d{4}-\d{2}-\d{2}/),dx=dm||is,dv=dm?`${dm[3]}-${M[dm[2]]}-${dm[1].padStart(2,'0')}`:is?is[0]:null;
+f.push(dx?{k:'date',l:'Date',v:dx[0],r:[dx.index,dx.index+dx[0].length],note:dv!==e.date?`The document shows ${dx[0]} but this record is dated ${e.date}.`:''}:{k:'date',l:'Date',v:'Not found',r:null,note:'No date appears in the document text.'});return{d,f}}
+let ES={id:null,k:null},VS={root:null,i:0,cmp:false,id:null};
+const fst=x=>!x.r?['Not verified','superseded']:x.note?['Needs review','pending']:['Source linked','approved'];
+function esel(k){ES.k=ES.k===k?null:k;$('#v').innerHTML=evi(ES.id)}
+function backTo(id){const e=ev(id);go('#/patient/'+e.pid+'/timeline');setTimeout(()=>openEv(id),60)}
+function evi(id){const e=ev(id);if(!e)return'<div class="card"><h2>Record not found</h2></div>';if(ES.id!==id){ES.id=id;ES.k=null}
+const bk=`<p><button class="btn" onclick="backTo('${id}')">Back to record</button></p>`,{d,f}=fields(e);
+if(!d)return bk+'<div class="card"><h2>No source document</h2><p class="mu">This record has no attached source, so there is nothing to inspect.</p></div>';
+let o=[],p=0;const t=d.text;f.filter(x=>x.r).sort((a,b)=>a.r[0]-b.r[0]).forEach(x=>{if(x.r[0]<p)return;o.push(t.slice(p,x.r[0]),`<span class="hk${ES.k===x.k?' on':''}" role="button" tabindex="0" onclick="esel('${x.k}')" onkeydown="if(event.key==='Enter')esel('${x.k}')">${t.slice(x.r[0],x.r[1])}</span>`);p=x.r[1]});o.push(t.slice(p));
+const s=f.find(x=>x.k===ES.k),mode=d.id[0]!=='u'?'Demo simulation on a synthetic document':d.cat==='Dictated note'?'Dictated text':'Text read by AI from your upload, or sample text';
+return`${bk}<h1>Evidence inspector</h1><p class="sub">${e.title} ${bd(e.st)}<br>${mode}. "Source linked" only means the value appears in the document. It does not mean the value is medically verified, and nothing here changes the record until a clinician approves it.</p>
+<div class="grid g2"><div class="card"><h3>${d.name}</h3><p class="mu">${d.cat}, ${d.date}. Click highlighted text to see its field.</p>${IMG[d.id]?`<img src="${IMG[d.id]}" alt="Uploaded file" style="max-width:100%;margin-bottom:10px">`:''}<div class="src">${o.join('')}</div></div>
+<div class="card"><h3>Extracted fields</h3><p class="mu">Suggestions only. Click a field to find its source.</p>${f.map(x=>{const q=fst(x);return`<button class="fl${ES.k===x.k?' on':''}" onclick="esel('${x.k}')"><div class="row"><b>${x.l}</b><span class="bdg ${q[1]}">${q[0]}</span></div>${x.v}</button>`}).join('')}
+${s?(s.note?`<div class="card" style="border-color:var(--am)"><b>Discrepancy</b><p>${s.note}</p><div class="row"><button class="btn p" onclick="go('#/review/${e.id}')">Open review workflow</button></div></div>`:`<p class="mu">${s.r?'Found at the highlighted text in the document.':''}</p>`):''}</div></div>`}
+function vrows(v){const r=rvOf(v),d=dc(v.doc);return[['Value',`${v.val} ${v.unit}`.trim()],['Record date',v.date],['Source document',d?d.name:'Not available'],['Status',v.st==='superseded'?'Approved, later superseded':cap(v.st)],['Decided by',r?`${r.actor} (${r.role})`:'Not available'],['Decision time',r?r.t:'Not available'],['Correction reason',v.why||(v.ver>1?'Not recorded':'Original version')]]}
+function vsel(n){VS.i=n;VS.cmp=false;$('#v').innerHTML=ver(VS.id)}
+function vcmp(){VS.cmp=!VS.cmp;$('#v').innerHTML=ver(VS.id)}
+function ver(id){const e=ev(id);if(!e)return'<div class="card"><h2>Record not found</h2></div>';const c=chainOf(e);
+if(c.length<2)return`<div class="card"><h2>No earlier versions</h2><p class="mu">${e.title} has a single version, so there is no history to show.</p><button class="btn" onclick="backTo('${id}')">Back to record</button></div>`;
+if(VS.root!==c[0].id)VS={root:c[0].id,i:c.length-1,cmp:false,id};VS.id=id;const L=c.length-1,i=Math.min(VS.i,L),v=c[i],cur=c[L],rs=vrows(v);
+const a=i===L?c[i-1]:c[i],b=i===L?c[i]:c[i+1],ra=vrows(a),rb=vrows(b);
+const ex=(a.val!==b.val?`Result changed from ${a.val} ${a.unit} to ${b.val} ${b.unit}. `:'')+(a.date!==b.date?`Record date changed from ${a.date} to ${b.date}. `:'')+(b.why?`Reason recorded: ${b.why}.`:'No correction reason was recorded.');
+return`<p class="mu"><a href="#/patient/${e.pid}/timeline">${pt(e.pid).name}</a> / Version history</p><h1>${cur.fld} version history</h1><p class="sub">Read-only. Earlier versions stay exactly as they were. Viewing one never changes the current record.</p>
+<div class="vt">${c.map((x,n)=>`<button class="btn${n===i?' on':''}" onclick="vsel(${n})">Version ${x.ver}${n===L?' (current)':''}<br><span style="font-weight:400">${rvOf(x)?rvOf(x).t:x.date}</span></button>`).join('')}</div>
+<div class="card" style="margin-top:12px"><div class="row"><h3>Version ${v.ver}</h3><span class="bdg ${i===L?'approved':'superseded'}">${i===L?'Current version':'Historical, read-only'}</span><button class="btn" onclick="vcmp()">${VS.cmp?'Hide comparison':'Compare versions'}</button></div>${i<L?`<p class="mu">You are viewing an earlier version. The current record still reads ${cur.val} ${cur.unit}.</p>`:''}
+<table class="tbl">${rs.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('')}</table></div>
+${VS.cmp?`<div class="card sc" style="margin-top:12px"><h3>Version ${a.ver} compared with version ${b.ver}</h3><p>${ex}</p><table class="tbl"><tr><th>Field</th><th>Version ${a.ver}</th><th>Version ${b.ver}</th><th>Change</th></tr>${ra.map((r,j)=>{const ch=r[1]!==rb[j][1];return`<tr class="${ch?'chg':''}"><td>${r[0]}</td><td>${ch?`<span class="df"><del>${r[1]}</del></span>`:r[1]}</td><td>${ch?`<span class="df"><ins>${rb[j][1]}</ins></span>`:rb[j][1]}</td><td>${ch?'Changed':'Unchanged'}</td></tr>`}).join('')}</table></div>`:''}
+<div class="row" style="margin-top:14px"><button class="btn p" onclick="backTo('${cur.id}')">Back to current record</button><button class="btn" onclick="go('#/evidence/${v.id}')">Inspect evidence for version ${v.ver}</button></div>`}
+function extractSim(){const f=UP.file;let n=0;const t=setInterval(()=>{n+=10;$('#pg').innerHTML=`<p class="mu">Reading ${f.name} (${n}%)</p><div class="bar"><i style="width:${n}%"></i></div>`;if(n>=100){clearInterval(t);fin()}},170)}
+function fin(){const f=UP.file,c=UP.cat,td=today();
+const X={'Laboratory report':['Hemoglobin','13.1','g/dL','Hemoglobin: 13.1 g/dL','Laboratory'],'Prescription':['Medication text','Paracetamol 500 mg when needed','','Paracetamol 500 mg when needed','Prescription'],'Consultation note':['Note excerpt','Patient reports a mild headache for two days','','Patient reports a mild headache for two days','Consultation']}[c]||['Document date',td,'','Date: '+td,'Document'];
+const r=mkRecord({pid:UP.pid,name:f.name,cat:c,type:X[4],fld:X[0],val:X[1],unit:X[2],snip:X[3],title:`${X[0]}${X[2]?' '+X[1]+' '+X[2]:''}`,text:`${c}, sample text for the demo\nPatient: ${pt(UP.pid).mrn}\nFile: ${f.name}\n\n${X[3]}`,actor:'Extraction (simulated)',arole:'System',sum:`Suggested ${X[0]} from ${f.name}`});
+if(UP.url)IMG[r.id]=UP.url;
+$('#pg').innerHTML=`<div class="card"><b>Suggestion created</b><p class="mu">Extraction is simulated: the demo shows your file but fills in sample text for the ${c.toLowerCase()} type. Nothing was uploaded to a server.</p><button class="btn p" onclick="go('#/review/${r.eid}')">Review the suggestion</button> <button class="btn" onclick="go('#/patient/${UP.pid}/timeline')">See patient timeline</button></div>`;toast('Document added. Suggestion is pending review')}
+function dic(){const ok=can(['Doctor','Nurse']);
+return`<h1>Dictate a note</h1><p class="sub">Speak and the words appear below. Fix anything the microphone misheard, then save it as an observation for review.</p>${ok?'':`<p class="mu">The ${role} role can't add notes in this demo. Switch to Doctor or Nurse.</p>`}
+<div class="row" style="margin-bottom:12px"><label>Patient <select onchange="DT.pid=this.value">${P.map(p=>`<option value="${p.id}" ${p.id===DT.pid?'selected':''}>${p.name}</option>`).join('')}</select></label><label>Language <select onchange="DT.lang=this.value">${[['en-IN','English (India)'],['en-US','English (US)'],['hi-IN','Hindi'],['ta-IN','Tamil']].map(l=>`<option value="${l[0]}" ${l[0]===DT.lang?'selected':''}>${l[1]}</option>`).join('')}</select></label></div>
+<p><button class="btn p" id="mb" onclick="toggleMic()" ${ok?'':'disabled'}>Start dictating</button> <span id="ms" class="mu"></span></p><p class="mu">Microphone not working in this preview? <button class="btn" onclick="dlApp()">Download the app</button> and open the file in Chrome or Edge.</p>
+<textarea id="tr" rows="7" style="width:100%;max-width:680px" aria-label="Transcript" placeholder="Your dictation appears here. You can also type."></textarea>
+<p><button class="btn p" ${ok?'':'disabled'} onclick="saveDict()">Save as pending observation</button></p>`}
+function toggleMic(){const b=$('#mb'),ms=$('#ms'),ta=$('#tr');if(rec){rec.stop();return}const base=ta.value.trim();
+rec=listen(DT.lang,true,s=>{ta.value=(base?base+' ':'')+s},()=>{rec=null;const b2=$('#mb');if(b2){b2.textContent='Start dictating';b2.classList.remove('rec')}const m=$('#ms');if(m&&m.textContent==='Listening...')m.textContent=''},m=>{const e=$('#ms');if(e)e.textContent=m});
+if(rec){b.textContent='Stop';b.classList.add('rec');ms.textContent='Listening...'}}
+function saveDict(){const tr=$('#tr').value.trim();if(!tr){toast('Dictate or type a note first');return}if(rec)rec.stop();
+const r=mkRecord({pid:DT.pid,name:'Dictated note '+now(),cat:'Dictated note',type:'Observation',fld:'Clinical note',val:tr,snip:tr,title:'Dictated note: '+tr.slice(0,40)+(tr.length>40?'...':''),text:'Dictated by '+ME[role]+' on '+today()+'\n\n'+tr,actor:ME[role],arole:role,sum:'Dictated note saved as a pending observation'});
+toast('Saved. The note is pending review');go('#/review/'+r.eid)}
+(S.ud||[]).forEach(d=>DOCS.some(x=>x.id===d.id)||DOCS.push(d));
+$('#role').innerHTML=Object.keys(ME).map(r=>`<option>${r}</option>`).join('');
+$('#role').onchange=e=>{role=e.target.value;toast('Role switched to '+role+' (UI only, not real security)');route()};
+addEventListener('hashchange',route);route();
+</script></body></html>
